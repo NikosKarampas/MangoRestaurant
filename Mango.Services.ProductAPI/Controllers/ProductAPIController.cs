@@ -17,7 +17,7 @@ namespace Mango.Services.ProductAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ResponseDto>> Get()
+        public async Task<ActionResult<object>> Get()
         {
             try
             {
@@ -34,12 +34,63 @@ namespace Mango.Services.ProductAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ResponseDto>> Get([FromRoute] int id)
+        public async Task<ActionResult<object>> Get([FromRoute] int id)
         {
             try
             {
                 ProductDto productDto = await _productRepository.GetProductById(id);
                 _response.Result = productDto;
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string> { ex.ToString() };
+            }
+
+            return _response;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<object>> Post([FromBody] ProductDto productDto)
+        {
+            try
+            {
+                ProductDto model = await _productRepository.CreateUpdateProduct(productDto);
+                _response.Result = model;
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string> { ex.ToString() };
+            }
+
+            return _response;
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<object>> Put([FromBody] ProductDto productDto)
+        {
+            try
+            {
+                ProductDto model = await _productRepository.CreateUpdateProduct(productDto);
+                _response.Result = model;
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string> { ex.ToString() };
+            }
+
+            return _response;
+        }
+
+        [HttpDelete]
+        public async Task<ActionResult<object>> Delete([FromQuery] int id)
+        {
+            try
+            {
+                bool isSuccess = await _productRepository.DeleteProduct(id);
+                _response.Result = isSuccess;
             }
             catch (Exception ex)
             {
