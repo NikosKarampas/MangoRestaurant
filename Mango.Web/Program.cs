@@ -1,4 +1,13 @@
+using Mango.Web;
+using Mango.Web.Services;
+using Mango.Web.Services.IServices;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHttpClient<IProductService, ProductService>();
+StaticDetails.ProductAPIBase = builder.Configuration["ServiceUrls:ProductAPI"];
+
+builder.Services.AddScoped<IProductService, ProductService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
