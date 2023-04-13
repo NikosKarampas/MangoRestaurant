@@ -9,8 +9,13 @@ StaticDetails.ProductAPIBase = builder.Configuration["ServiceUrls:ProductAPI"];
 
 builder.Services.AddScoped<IProductService, ProductService>();
 
+builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
+
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+});
 
 var app = builder.Build();
 
