@@ -84,8 +84,8 @@ namespace Mango.Services.ProductAPI.Controllers
             return _response;
         }
 
-        [HttpDelete]
-        public async Task<ActionResult<object>> Delete([FromQuery] int id)
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<object>> Delete([FromRoute] int id)
         {
             try
             {
