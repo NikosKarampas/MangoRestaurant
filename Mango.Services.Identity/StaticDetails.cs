@@ -30,14 +30,14 @@ namespace Mango.Services.Identity
             {
                 new Client
                 {
-                    ClientId ="client",
+                    ClientId = "client",
                     ClientSecrets = { new Secret("secret".Sha256()) },
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
                     AllowedScopes = { "read", "write", "profile" }
                 },
                 new Client
                 {
-                    ClientId ="mango",
+                    ClientId = "mango",
                     ClientSecrets = { new Secret("secret".Sha256()) },
                     AllowedGrantTypes = GrantTypes.Code,
                     RedirectUris = { "https://localhost:44326/signin-oidc" },
