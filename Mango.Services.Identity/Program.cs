@@ -1,5 +1,6 @@
 using Mango.Services.Identity;
 using Mango.Services.Identity.DbContexts;
+using Mango.Services.Identity.Initializer;
 using Mango.Services.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,8 @@ var identityServerBuilder = builder.Services.AddIdentityServer(options =>
   .AddInMemoryClients(StaticDetails.Clients)
   .AddAspNetIdentity<ApplicationUser>();
 
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+
 identityServerBuilder.AddDeveloperSigningCredential();
 
 // Add services to the container.
@@ -49,6 +52,12 @@ app.UseRouting();
 app.UseIdentityServer();
 
 app.UseAuthorization();
+
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+
+var dbInitializer = services.GetRequiredService<IDbInitializer>();
+dbInitializer.Initialize();
 
 app.MapControllerRoute(
     name: "default",
