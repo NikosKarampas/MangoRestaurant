@@ -1,14 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Mango.Services.ShoppingCartAPI.Models
+namespace Mango.Services.ShoppingCartAPI.Models.DTO
 {
-    public class Product
+    public class ProductDto
     {
         public int ProductId { get; set; }
 
         public string Name { get; set; }
-
-        [Range(1, 1000)]
+        
         public double Price { get; set; }
 
         public string Description { get; set; }
@@ -17,6 +16,6 @@ namespace Mango.Services.ShoppingCartAPI.Models
 
         public string ImageUrl { get; set; }
 
-        public CartDetails CartDetails { get; set; }
+        public CartDetailsDto CartDetails { get; set; }
     }
 }
