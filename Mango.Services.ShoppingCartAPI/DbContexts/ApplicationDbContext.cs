@@ -19,6 +19,7 @@ namespace Mango.Services.ShoppingCartAPI.DbContexts
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new ProductConfiguration());
+            modelBuilder.ApplyConfiguration(new CartDetailsConfiguration());
         }
     }
 }

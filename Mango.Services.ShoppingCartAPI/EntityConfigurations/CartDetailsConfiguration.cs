@@ -8,13 +8,15 @@ namespace Mango.Services.ShoppingCartAPI.EntityConfigurations
     {
         public void Configure(EntityTypeBuilder<CartDetails> builder)
         {
+            builder.HasKey(k => k.CardDetailsId);
+
             builder.HasOne(ch => ch.CartHeader)
                 .WithOne(cd => cd.CartDetails)
                 .HasForeignKey<CartDetails>(cd => cd.CartHeaderId);
 
             builder.HasOne(ch => ch.Product)
                 .WithOne(cd => cd.CartDetails)
-                .HasForeignKey<Product>(cd => cd.ProductId);
+                .HasForeignKey<CartDetails>(cd => cd.ProductId);
         }
     }
 }
