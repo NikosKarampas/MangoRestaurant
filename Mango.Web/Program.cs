@@ -6,10 +6,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient<IProductService, ProductService>();
 
+builder.Services.AddHttpClient<ICartService, CartService>();
+
 StaticDetails.ProductAPIBase = builder.Configuration["ServiceUrls:ProductAPI"];
 StaticDetails.ShoppingCartAPIBase = builder.Configuration["ServiceUrls:ShoppingCartAPI"];
 
 builder.Services.AddScoped<IProductService, ProductService>();
+
+builder.Services.AddScoped<ICartService, CartService>();
 
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 
