@@ -71,13 +71,13 @@ namespace Mango.Services.ShoppingCartAPI.Migrations
                 name: "IX_CartDetails_CartHeaderId",
                 table: "CartDetails",
                 column: "CartHeaderId",
-                unique: true);
+                unique: false);
 
             migrationBuilder.CreateIndex(
                 name: "IX_CartDetails_ProductId",
                 table: "CartDetails",
                 column: "ProductId",
-                unique: true);
+                unique: false);
         }
 
         /// <inheritdoc />

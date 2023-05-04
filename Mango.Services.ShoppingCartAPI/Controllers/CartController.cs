@@ -1,5 +1,6 @@
 ﻿using Mango.Services.ShoppingCartAPI.Models.DTO;
 using Mango.Services.ShoppingCartAPI.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Mango.Services.ShoppingCartAPI.Controllers
@@ -17,6 +18,7 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
             _response = new ResponseDto();
         }
 
+        [Authorize]
         [HttpGet("GetCart/{userId}")]
         public async Task<ActionResult<object>> GetCart([FromRoute] string userId)
         {
@@ -33,6 +35,7 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
             return _response;
         }
 
+        [Authorize]
         [HttpPost("AddCart")]
         public async Task<ActionResult<object>> AddCart([FromBody] CartDto cartDto)
         {
@@ -49,6 +52,7 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
             return _response;
         }
 
+        [Authorize]
         [HttpPost("UpdateCart")]
         public async Task<ActionResult<object>> UpdateCart([FromBody] CartDto cartDto)
         {
@@ -65,6 +69,7 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
             return _response;
         }
 
+        [Authorize]
         [HttpPost("RemoveCart")]
         public async Task<ActionResult<object>> RemoveCart([FromBody] int cartId)
         {
@@ -81,6 +86,7 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
             return _response;
         }
 
+        [Authorize]
         [HttpDelete("ClearCart/{userId}")]
         public async Task<ActionResult<object>> ClearCart([FromRoute] string userId)
         {

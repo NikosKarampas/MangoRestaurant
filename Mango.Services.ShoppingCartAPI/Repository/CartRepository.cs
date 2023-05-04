@@ -34,62 +34,71 @@ namespace Mango.Services.ShoppingCartAPI.Repository
 
         public async Task<CartDto> CreateUpdateCart(CartDto cartDto)
         {
-            Cart cart = _mapper.Map<Cart>(cartDto);
-
-            //check if product exists in database, if not create it!
-            var prodInDb = await _db.Products
-                .FirstOrDefaultAsync(p => p.ProductId == cartDto.CartDetails.FirstOrDefault()
-                .ProductId);            
-
-            if (prodInDb == null)
+            try
             {
-                _db.Products.Add(cart.CartDetails.FirstOrDefault().Product);
-                await _db.SaveChangesAsync();
-            }
+                Cart cart = _mapper.Map<Cart>(cartDto);
 
-            //check if header is null
-            var cartHeaderFromDb = await _db.CartHeaders
-                .AsNoTracking()
-                .FirstOrDefaultAsync(ch => ch.UserId == cart.CartHeader.UserId);
+                //check if product exists in database, if not create it!
+                var prodInDb = await _db.Products
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(p => p.ProductId == cartDto.CartDetails.FirstOrDefault()
+                    .ProductId);
 
-            if (cartHeaderFromDb == null)
-            {
-                //create header and details
-                _db.CartHeaders.Add(cart.CartHeader);
-                await _db.SaveChangesAsync();
-
-                cart.CartDetails.FirstOrDefault().CartHeaderId = cart.CartHeader.CartHeaderId;
-                cart.CartDetails.FirstOrDefault().Product = null;
-                _db.CartDetails.Add(cart.CartDetails.FirstOrDefault());
-                await _db.SaveChangesAsync();
-            }
-            else
-            {
-                //if header is not null
-                //check if details has same product
-                var cartDetailsFromDb = await _db.CartDetails.AsNoTracking().FirstOrDefaultAsync(
-                    cd => cd.ProductId == cart.CartDetails.FirstOrDefault().ProductId &&
-                          cd.CartHeaderId == cartHeaderFromDb.CartHeaderId);
-                
-                if (cartDetailsFromDb == null)
+                if (prodInDb == null)
                 {
-                    //create details
-                    cart.CartDetails.FirstOrDefault().CartHeaderId = cartHeaderFromDb.CartHeaderId;
+                    //Add product in database
+                    _db.Products.Add(cart.CartDetails.FirstOrDefault().Product);
+                    await _db.SaveChangesAsync();
+                }
+
+                //check if header is null
+                var cartHeaderFromDb = await _db.CartHeaders
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(ch => ch.UserId == cart.CartHeader.UserId);
+
+                if (cartHeaderFromDb == null)
+                {
+                    //create header and details
+                    _db.CartHeaders.Add(cart.CartHeader);
+                    await _db.SaveChangesAsync();
+
+                    //Create cartdetails with CartHeaderId from cartheader we just created
+                    cart.CartDetails.FirstOrDefault().CartHeaderId = cart.CartHeader.CartHeaderId;
                     cart.CartDetails.FirstOrDefault().Product = null;
                     _db.CartDetails.Add(cart.CartDetails.FirstOrDefault());
                     await _db.SaveChangesAsync();
                 }
                 else
                 {
-                    //update the count / cart details
-                    cart.CartDetails.FirstOrDefault().Product = null;
-                    cart.CartDetails.FirstOrDefault().Count += cartDetailsFromDb.Count;
-                    _db.CartDetails.Update(cart.CartDetails.FirstOrDefault());
-                    await _db.SaveChangesAsync();
-                }
-            }
+                    //if header is not null
+                    //check if details has same product
+                    var cartDetailsFromDb = await _db.CartDetails.FirstOrDefaultAsync(
+                        cd => cd.ProductId == cart.CartDetails.FirstOrDefault().ProductId &&
+                              cd.CartHeaderId == cartHeaderFromDb.CartHeaderId);
 
-            return _mapper.Map<CartDto>(cart);
+                    if (cartDetailsFromDb == null)
+                    {
+                        //create cart details / add a new product
+                        cart.CartDetails.FirstOrDefault().CartHeaderId = cartHeaderFromDb.CartHeaderId;
+                        cart.CartDetails.FirstOrDefault().Product = null;
+                        _db.CartDetails.Add(cart.CartDetails.FirstOrDefault());
+                        await _db.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        //update the count / cart details of the product                        
+                        cartDetailsFromDb.Count += cart.CartDetails.FirstOrDefault().Count;
+                        _db.CartDetails.Update(cartDetailsFromDb);
+                        await _db.SaveChangesAsync();
+                    }
+                }
+
+                return _mapper.Map<CartDto>(cart);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error updating cart", ex);
+            }            
         }
 
         public async Task<CartDto> GetCartByUserId(string userId)
