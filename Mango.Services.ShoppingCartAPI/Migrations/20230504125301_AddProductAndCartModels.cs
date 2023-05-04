@@ -44,7 +44,7 @@ namespace Mango.Services.ShoppingCartAPI.Migrations
                 name: "CartDetails",
                 columns: table => new
                 {
-                    CardDetailsId = table.Column<int>(type: "int", nullable: false)
+                    CartDetailsId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CartHeaderId = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
@@ -52,7 +52,7 @@ namespace Mango.Services.ShoppingCartAPI.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CartDetails", x => x.CardDetailsId);
+                    table.PrimaryKey("PK_CartDetails", x => x.CartDetailsId);
                     table.ForeignKey(
                         name: "FK_CartDetails_CartHeaders_CartHeaderId",
                         column: x => x.CartHeaderId,

@@ -8,7 +8,7 @@ namespace Mango.Services.ShoppingCartAPI.EntityConfigurations
     {
         public void Configure(EntityTypeBuilder<CartDetails> builder)
         {
-            builder.HasKey(k => k.CardDetailsId);
+            builder.HasKey(k => k.CartDetailsId);
 
             builder.HasOne(ch => ch.CartHeader)
                 .WithOne(cd => cd.CartDetails)

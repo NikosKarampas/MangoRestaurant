@@ -2,7 +2,7 @@
 {
     public class CartDetails
     {
-        public int CardDetailsId { get; set; }
+        public int CartDetailsId { get; set; }
 
         public int CartHeaderId { get; set; }
 

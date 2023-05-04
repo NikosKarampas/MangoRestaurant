@@ -23,11 +23,11 @@ namespace Mango.Services.ShoppingCartAPI.Migrations
 
             modelBuilder.Entity("Mango.Services.ShoppingCartAPI.Models.CartDetails", b =>
                 {
-                    b.Property<int>("CardDetailsId")
+                    b.Property<int>("CartDetailsId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CardDetailsId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartDetailsId"));
 
                     b.Property<int>("CartHeaderId")
                         .HasColumnType("int");
@@ -38,7 +38,7 @@ namespace Mango.Services.ShoppingCartAPI.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.HasKey("CardDetailsId");
+                    b.HasKey("CartDetailsId");
 
                     b.HasIndex("CartHeaderId")
                         .IsUnique();
