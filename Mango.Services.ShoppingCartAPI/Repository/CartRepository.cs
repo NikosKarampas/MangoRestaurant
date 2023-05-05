@@ -15,7 +15,7 @@ namespace Mango.Services.ShoppingCartAPI.Repository
         {
             _db = dbContext;
             _mapper = mapper;
-        }
+        }        
 
         public async Task<bool> ClearCart(string userId)
         {
@@ -115,7 +115,7 @@ namespace Mango.Services.ShoppingCartAPI.Repository
             }            
 
             return _mapper.Map<CartDto>(cart);
-        }
+        }        
 
         public async Task<bool> RemoveFromCart(int cartDetailsId)
         {
@@ -147,6 +147,24 @@ namespace Mango.Services.ShoppingCartAPI.Repository
                 return false;                
             }
                                
+        }
+
+        public async Task<bool> ApplyCoupon(string userId, string couponCode)
+        {
+            var cartFromDb = await _db.CartHeaders.FirstOrDefaultAsync(ch => ch.UserId == userId);
+            cartFromDb.CouponCode = couponCode;
+            _db.CartHeaders.Update(cartFromDb);
+            await _db.SaveChangesAsync(); 
+            return true;
+        }
+
+        public async Task<bool> RemoveCoupon(string userId)
+        {
+            var cartFromDb = await _db.CartHeaders.FirstOrDefaultAsync(ch => ch.UserId == userId);
+            cartFromDb.CouponCode = string.Empty;
+            _db.CartHeaders.Update(cartFromDb);
+            await _db.SaveChangesAsync();
+            return true;
         }
     }
 }
