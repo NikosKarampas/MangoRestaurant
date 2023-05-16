@@ -1,5 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Mango.MessageBus
 {
@@ -16,9 +18,12 @@ namespace Mango.MessageBus
         public async Task PublishMessage(BaseMessage message, string topicName)
         {
             ServiceBusSender sender = _serviceBusClient.CreateSender(topicName);
-                        
-            var jsonMessage = JsonSerializer.Serialize(message);
-            var serviceBusMessage = new ServiceBusMessage(jsonMessage);
+
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.ReferenceHandler = ReferenceHandler.Preserve;            
+
+            var jsonMessage = JsonSerializer.Serialize(message, message.GetType(), options);
+            var serviceBusMessage = new ServiceBusMessage(Encoding.UTF8.GetBytes(jsonMessage));
 
             await sender.SendMessageAsync(serviceBusMessage);
 

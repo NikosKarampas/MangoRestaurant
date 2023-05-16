@@ -80,7 +80,13 @@ namespace Mango.Web.Controllers
             {
                 var accessToken = await HttpContext.GetTokenAsync("access_token");
                 var response = await _cartService.CheckoutAsync<ResponseDto>(cartDto.CartHeader, accessToken);
-                return RedirectToAction(nameof(Confirmation));
+
+                if (response != null && response.IsSuccess)
+                {
+                    return RedirectToAction(nameof(Confirmation));
+                }
+
+                return View(cartDto);
             }
             catch (Exception ex)
             {
