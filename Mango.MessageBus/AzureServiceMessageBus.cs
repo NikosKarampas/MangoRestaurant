@@ -27,7 +27,7 @@ namespace Mango.MessageBus
 
             await sender.SendMessageAsync(serviceBusMessage);
 
-            await sender.CloseAsync();
+            await sender.DisposeAsync();
         }
     }
 }
