@@ -17,6 +17,9 @@ namespace Mango.Services.ShoppingCartAPI.EntityConfigurations
             builder.HasOne(ch => ch.Product)
                 .WithOne(cd => cd.CartDetails)
                 .HasForeignKey<CartDetails>(cd => cd.ProductId);
+
+            builder.HasIndex(cd => cd.CartHeaderId).IsUnique(false);
+            builder.HasIndex(cd => cd.ProductId).IsUnique(false);
         }
     }
 }
