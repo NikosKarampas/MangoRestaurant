@@ -3,8 +3,8 @@ using Azure.Messaging.ServiceBus;
 using Mango.Services.OrderAPI.Messages;
 using Mango.Services.OrderAPI.Models;
 using Mango.Services.OrderAPI.Repository;
-using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Mango.Services.OrderAPI.Messaging
 {
@@ -55,14 +55,17 @@ namespace Mango.Services.OrderAPI.Messaging
 
         private async Task OnCheckoutMessageReceived(ProcessMessageEventArgs args)
         {
-            var body = args.Message.Body.ToString();            
+            var body = args.Message.Body.ToString();
 
-            CheckoutHeaderDto checkoutHeaderDto = JsonSerializer.Deserialize<CheckoutHeaderDto>(body);
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.ReferenceHandler = ReferenceHandler.Preserve;
+
+            CheckoutHeaderDto checkoutHeaderDto = JsonSerializer.Deserialize<CheckoutHeaderDto>(body, options);
 
             OrderHeader orderHeader = _mapper.Map<OrderHeader>(checkoutHeaderDto);
             orderHeader.PaymentStatus = false;
             orderHeader.OrderTime = DateTime.Now;
-            orderHeader.CartTotalItems = orderHeader.OrderDetails.Count;
+            orderHeader.CartTotalItems = orderHeader.OrderDetails.ToList().Count;
 
             await _orderRepository.AddOrderAsync(orderHeader);
         }
