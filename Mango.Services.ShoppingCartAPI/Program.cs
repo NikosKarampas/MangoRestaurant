@@ -21,6 +21,8 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 
+builder.Services.AddScoped<ICouponRepository, CouponRepository>();
+
 builder.Services.AddSingleton<IMessageBus, AzureServiceMessageBus>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -28,6 +30,12 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.PropertyNamingPolicy = null;
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
+
+builder.Services.AddHttpClient<ICouponRepository, CouponRepository>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ServiceUrls:CouponAPI"]);
+});
+    
 
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
