@@ -4,6 +4,6 @@ namespace Mango.Services.ShoppingCartAPI.Repository
 {
     public interface ICouponRepository
     {
-        Task<CouponDto> GetCouponAsync(string couponName);
+        Task<CouponDto> GetCouponAsync(string couponName, string accessToken);
     }
 }
