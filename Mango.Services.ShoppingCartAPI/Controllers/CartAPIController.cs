@@ -2,6 +2,7 @@
 using Mango.Services.ShoppingCartAPI.Messages;
 using Mango.Services.ShoppingCartAPI.Models.DTO;
 using Mango.Services.ShoppingCartAPI.Repository;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,16 +13,19 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
     public class CartAPIController : ControllerBase
     {
         private readonly ICartRepository _cartRepository;
+        private readonly ICouponRepository _couponRepository;
         private readonly IMessageBus _messageBus;
         private readonly IConfiguration Configuration;
         protected ResponseDto _response;
 
-        public CartAPIController(ICartRepository cartRepository, IMessageBus messageBus, IConfiguration configuration)
+        public CartAPIController(ICartRepository cartRepository, IMessageBus messageBus, 
+            IConfiguration configuration, ICouponRepository couponRepository)
         {
             _cartRepository = cartRepository;
             _response = new ResponseDto();
             _messageBus = messageBus;
             Configuration = configuration;
+            _couponRepository = couponRepository;
         }
 
         [Authorize]
@@ -155,6 +159,20 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
                 if (cartDto == null) 
                 {
                     return BadRequest();
+                }
+
+                if (!string.IsNullOrEmpty(checkoutHeader.CouponCode))
+                {
+                    var accessToken = await HttpContext.GetTokenAsync("access_token");
+                    CouponDto couponDto = await _couponRepository.GetCouponAsync(checkoutHeader.CouponCode, accessToken);
+
+                    if (checkoutHeader.DiscountTotal != couponDto.DiscountAmount)
+                    {
+                        _response.IsSuccess = false;
+                        _response.ErrorMessages = new List<string>() { "Coupon Price has changed, please confirm" };
+                        _response.DisplayMessage = "Coupon Price has changed, please confirm";
+                        return _response;
+                    }
                 }
 
                 checkoutHeader.CartDetails = cartDto.CartDetails;
