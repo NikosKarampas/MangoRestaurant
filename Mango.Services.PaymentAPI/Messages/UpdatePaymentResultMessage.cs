@@ -1,6 +1,8 @@
-﻿namespace Mango.Services.PaymentAPI.Messages
+﻿using Mango.MessageBus;
+
+namespace Mango.Services.PaymentAPI.Messages
 {
-    public class UpdatePaymentResultMessage
+    public class UpdatePaymentResultMessage : BaseMessage
     {
         public int OrderId { get; set; }
 
