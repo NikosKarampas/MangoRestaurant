@@ -95,6 +95,7 @@ namespace Mango.Services.OrderAPI.Messaging
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.ToString());
                 throw;
             }
         }
