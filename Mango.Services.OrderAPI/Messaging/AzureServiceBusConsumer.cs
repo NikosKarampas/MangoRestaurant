@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Azure.Messaging.ServiceBus;
+using Mango.MessageBus;
 using Mango.Services.OrderAPI.Messages;
 using Mango.Services.OrderAPI.Models;
 using Mango.Services.OrderAPI.Repository;
@@ -13,25 +14,30 @@ namespace Mango.Services.OrderAPI.Messaging
         private readonly string serviceBusConnectionString;
         private readonly string subscriptionCheckout;
         private readonly string checkoutMessageTopic;
+        private readonly string orderPaymentProcessTopic;
 
         private readonly OrderRepository _orderRepository;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
+        private readonly IMessageBus _messageBus;
 
         private ServiceBusProcessor checkoutProcessor;
 
-        public AzureServiceBusConsumer(OrderRepository orderRepository, IMapper mapper, IConfiguration configuration)
+        public AzureServiceBusConsumer(OrderRepository orderRepository, IMapper mapper, 
+            IConfiguration configuration, IMessageBus messageBus)
         {
             _orderRepository = orderRepository;
             _mapper = mapper;
             _configuration = configuration;
+            _messageBus = messageBus;
 
-            serviceBusConnectionString = configuration["AzureServiceBus:ConnectionString"];
-            subscriptionCheckout = configuration["AzureServiceBus:SubscriptionCheckout"];
-            checkoutMessageTopic = configuration["AzureServiceBus:CheckoutTopicName"];
+            serviceBusConnectionString = _configuration["AzureServiceBus:ConnectionString"];
+            subscriptionCheckout = _configuration["AzureServiceBus:SubscriptionCheckout"];
+            checkoutMessageTopic = _configuration["AzureServiceBus:CheckoutTopicName"];
+            orderPaymentProcessTopic = _configuration["AzureServiceBus:OrderPaymentTopicName"];
 
             var client = new ServiceBusClient(serviceBusConnectionString);
-            checkoutProcessor = client.CreateProcessor(checkoutMessageTopic, subscriptionCheckout);
+            checkoutProcessor = client.CreateProcessor(checkoutMessageTopic, subscriptionCheckout);            
         }
 
         public async Task Start()
@@ -68,6 +74,29 @@ namespace Mango.Services.OrderAPI.Messaging
             orderHeader.CartTotalItems = orderHeader.OrderDetails.ToList().Count;
 
             await _orderRepository.AddOrderAsync(orderHeader);
+
+            PaymentRequestMessage paymentRequestMessage = new()
+            {
+                Name = orderHeader.FirstName + " " + orderHeader.LastName,
+                CardNumber = orderHeader.CardNumber,
+                CVV = orderHeader.CVV,
+                ExpiryMonthYear = orderHeader.ExpiryMonthYear,
+                OrderId = orderHeader.OrderHeaderId,
+                OrderTotal = orderHeader.OrderTotal
+            };
+
+            paymentRequestMessage.Id = Guid.NewGuid();
+            paymentRequestMessage.MessageCreated = DateTime.Now;
+
+            try
+            {
+                await _messageBus.PublishMessage(paymentRequestMessage, orderPaymentProcessTopic);
+                await args.CompleteMessageAsync(args.Message);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
     }
 }
