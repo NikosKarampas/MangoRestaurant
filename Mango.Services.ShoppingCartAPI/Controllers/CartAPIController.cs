@@ -183,6 +183,8 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
                 checkoutHeader.MessageCreated = DateTime.Now;
 
                 await _messageBus.PublishMessage(checkoutHeader, Configuration["AzureServiceBus:CheckoutTopicName"]);
+
+                await _cartRepository.ClearCart(checkoutHeader.UserId);
             }
             catch (Exception ex)
             {
