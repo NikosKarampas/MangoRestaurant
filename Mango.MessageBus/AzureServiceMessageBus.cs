@@ -15,9 +15,9 @@ namespace Mango.MessageBus
             _serviceBusClient = new ServiceBusClient(config["AzureServiceBus:ConnectionString"]);            
         }
 
-        public async Task PublishMessage(BaseMessage message, string topicName)
+        public async Task PublishMessage(BaseMessage message, string queueOrTopicName)
         {
-            ServiceBusSender sender = _serviceBusClient.CreateSender(topicName);
+            ServiceBusSender sender = _serviceBusClient.CreateSender(queueOrTopicName);
 
             JsonSerializerOptions options = new JsonSerializerOptions();
             options.ReferenceHandler = ReferenceHandler.Preserve;            
