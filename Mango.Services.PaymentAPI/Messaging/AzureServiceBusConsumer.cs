@@ -12,7 +12,7 @@ namespace Mango.Services.PaymentAPI.Messaging
         private readonly string serviceBusConnectionString;
         private readonly string subscriptionPayment;        
         private readonly string orderPaymentProcessTopic;
-        private readonly string orderupdatepaymentresulttopic;
+        private readonly string orderUpdatePaymentResultTopic;
         
         private readonly IConfiguration _configuration;
         private readonly IMessageBus _messageBus;
@@ -29,7 +29,7 @@ namespace Mango.Services.PaymentAPI.Messaging
             serviceBusConnectionString = _configuration["AzureServiceBus:ConnectionString"];
             subscriptionPayment = _configuration["AzureServiceBus:OrderPaymentSubscription"];
             orderPaymentProcessTopic = _configuration["AzureServiceBus:OrderPaymentTopicName"];
-            orderupdatepaymentresulttopic = _configuration["AzureServiceBus:OrderUpdatePaymentResultTopic"];
+            orderUpdatePaymentResultTopic = _configuration["AzureServiceBus:OrderUpdatePaymentResultTopic"];
 
             var client = new ServiceBusClient(serviceBusConnectionString);
             orderPaymentProcessor = client.CreateProcessor(orderPaymentProcessTopic, subscriptionPayment);            
@@ -76,7 +76,7 @@ namespace Mango.Services.PaymentAPI.Messaging
 
             try
             {
-                await _messageBus.PublishMessage(updatePaymentResultMessage, orderupdatepaymentresulttopic);
+                await _messageBus.PublishMessage(updatePaymentResultMessage, orderUpdatePaymentResultTopic);
                 await args.CompleteMessageAsync(args.Message);
             }
             catch (Exception ex)
