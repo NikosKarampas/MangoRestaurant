@@ -13,7 +13,8 @@ namespace Mango.Services.OrderAPI.Messaging
     {
         private readonly string serviceBusConnectionString;
         private readonly string subscriptionCheckout;
-        private readonly string checkoutMessageTopic;
+        //private readonly string checkoutMessageTopic;
+        private readonly string checkoutQueueName;
         private readonly string orderPaymentProcessTopic;
         private readonly string orderUpdatePaymentResultTopic;
 
@@ -35,12 +36,14 @@ namespace Mango.Services.OrderAPI.Messaging
 
             serviceBusConnectionString = _configuration["AzureServiceBus:ConnectionString"];
             subscriptionCheckout = _configuration["AzureServiceBus:SubscriptionCheckout"];
-            checkoutMessageTopic = _configuration["AzureServiceBus:CheckoutTopicName"];
+            //checkoutMessageTopic = _configuration["AzureServiceBus:CheckoutTopicName"];
+            checkoutQueueName = _configuration["AzureServiceBus:CheckoutQueueName"];
             orderPaymentProcessTopic = _configuration["AzureServiceBus:OrderPaymentTopicName"];
             orderUpdatePaymentResultTopic = _configuration["AzureServiceBus:OrderUpdatePaymentResultTopic"];
 
             var client = new ServiceBusClient(serviceBusConnectionString);
-            checkoutProcessor = client.CreateProcessor(checkoutMessageTopic, subscriptionCheckout);
+            //checkoutProcessor = client.CreateProcessor(checkoutMessageTopic, subscriptionCheckout);
+            checkoutProcessor = client.CreateProcessor(checkoutQueueName);
             orderUpdatePaymentStatusProcessor = client.CreateProcessor(orderUpdatePaymentResultTopic, subscriptionCheckout);
         }
 
