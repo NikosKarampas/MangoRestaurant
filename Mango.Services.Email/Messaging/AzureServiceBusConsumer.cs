@@ -13,8 +13,7 @@ namespace Mango.Services.Email.Messaging
 
         private readonly EmailRepository _emailRepository;        
         private readonly IConfiguration _configuration;        
-
-        private ServiceBusProcessor checkoutProcessor;
+        
         private ServiceBusProcessor orderUpdatePaymentStatusProcessor;
 
         public AzureServiceBusConsumer(EmailRepository emailRepository, IConfiguration configuration)
