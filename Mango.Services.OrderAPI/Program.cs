@@ -26,6 +26,8 @@ optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("DefaultCon
 
 builder.Services.AddSingleton(new OrderRepository(optionBuilder.Options));
 
+builder.Services.AddHostedService<RabbitMQCheckoutConsumer>();
+
 builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
 
 builder.Services.AddSingleton<IMessageBus, AzureServiceMessageBus>();
