@@ -193,7 +193,7 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
                 //await _messageBus.PublishMessage(checkoutHeader, Configuration["AzureServiceBus:CheckoutQueueName"]);
 
                 //Publish message to RabbitMQ
-                _rabbitMQCartMessageSender.SendMessage(checkoutHeader, "checkoutqueue");
+                _rabbitMQCartMessageSender.SendMessage(checkoutHeader, Configuration["RabbitMQ:CheckoutQueueName"]);
 
                 await _cartRepository.ClearCart(checkoutHeader.UserId);
             }
