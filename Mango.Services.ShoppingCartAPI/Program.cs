@@ -2,6 +2,7 @@ using AutoMapper;
 using Mango.MessageBus;
 using Mango.Services.ShoppingCartAPI;
 using Mango.Services.ShoppingCartAPI.DbContexts;
+using Mango.Services.ShoppingCartAPI.RabbitMQSender;
 using Mango.Services.ShoppingCartAPI.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -10,10 +11,12 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var config = builder.Configuration;
+
 // Add services to the container.
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
 
 IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
 builder.Services.AddSingleton(mapper);
@@ -25,6 +28,12 @@ builder.Services.AddScoped<ICouponRepository, CouponRepository>();
 
 builder.Services.AddSingleton<IMessageBus, AzureServiceMessageBus>();
 
+builder.Services.AddSingleton<IRabbitMQCartMessageSender>(_ => 
+    new RabbitMQCartMessageSender(
+        config["RabbitMQ:Hostname"], 
+        config["RabbitMQ:Username"], 
+        config["RabbitMQ:Password"]));
+
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = null;
@@ -33,7 +42,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 builder.Services.AddHttpClient<ICouponRepository, CouponRepository>(client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ServiceUrls:CouponAPI"]);
+    client.BaseAddress = new Uri(config["ServiceUrls:CouponAPI"]);
 });
     
 

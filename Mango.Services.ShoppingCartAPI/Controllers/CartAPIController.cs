@@ -1,6 +1,7 @@
 ﻿using Mango.MessageBus;
 using Mango.Services.ShoppingCartAPI.Messages;
 using Mango.Services.ShoppingCartAPI.Models.DTO;
+using Mango.Services.ShoppingCartAPI.RabbitMQSender;
 using Mango.Services.ShoppingCartAPI.Repository;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -17,15 +18,18 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
         private readonly IMessageBus _messageBus;
         private readonly IConfiguration Configuration;
         protected ResponseDto _response;
+        private readonly IRabbitMQCartMessageSender _rabbitMQCartMessageSender;
 
-        public CartAPIController(ICartRepository cartRepository, IMessageBus messageBus, 
-            IConfiguration configuration, ICouponRepository couponRepository)
+        public CartAPIController(ICartRepository cartRepository, IMessageBus messageBus,
+            IConfiguration configuration, ICouponRepository couponRepository, 
+            IRabbitMQCartMessageSender rabbitMQCartMessageSender)
         {
             _cartRepository = cartRepository;
             _response = new ResponseDto();
             _messageBus = messageBus;
             Configuration = configuration;
             _couponRepository = couponRepository;
+            _rabbitMQCartMessageSender = rabbitMQCartMessageSender;
         }
 
         [Authorize]
@@ -185,7 +189,11 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
                 //Publish message to the topic
                 //await _messageBus.PublishMessage(checkoutHeader, Configuration["AzureServiceBus:CheckoutTopicName"]);
 
-                await _messageBus.PublishMessage(checkoutHeader, Configuration["AzureServiceBus:CheckoutQueueName"]);
+                //Publish message to the queue
+                //await _messageBus.PublishMessage(checkoutHeader, Configuration["AzureServiceBus:CheckoutQueueName"]);
+
+                //Publish message to RabbitMQ
+                _rabbitMQCartMessageSender.SendMessage(checkoutHeader, "checkoutqueue");
 
                 await _cartRepository.ClearCart(checkoutHeader.UserId);
             }
