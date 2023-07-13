@@ -6,27 +6,33 @@ using System.Text.Json;
 using Mango.Services.OrderAPI.Messages;
 using Mango.Services.OrderAPI.Models;
 using AutoMapper;
+using Mango.Services.OrderAPI.RabbitMQSender;
+using System.Text;
 
 namespace Mango.Services.OrderAPI.Messaging
 {
     public class RabbitMQCheckoutConsumer : BackgroundService
     {
         private readonly OrderRepository _orderRepository;
+        private readonly IRabbitMQOrderMessageSender _rabbitMQOrderMessageSender;
+
         private readonly IConfiguration _config;
-        private readonly IMapper _mapper;
+        private readonly IMapper _mapper;        
 
         private IConnection _connection;
         private IModel _channel;
 
-        public RabbitMQCheckoutConsumer(OrderRepository orderRepository, 
+        public RabbitMQCheckoutConsumer(OrderRepository orderRepository,
+            IRabbitMQOrderMessageSender rabbitMQOrderMessageSender,
             IConfiguration config, 
             IMapper mapper)
         {
             _orderRepository = orderRepository;
+            _rabbitMQOrderMessageSender = rabbitMQOrderMessageSender;
 
             _config = config;
-            _mapper = mapper;            
-
+            _mapper = mapper;
+            
             var factory = new ConnectionFactory
             {
                 HostName = _config["RabbitMQ:Hostname"],
@@ -46,7 +52,7 @@ namespace Mango.Services.OrderAPI.Messaging
             var consumer = new EventingBasicConsumer(_channel);
             consumer.Received += (ch, ea) =>
             {
-                var content = ea.Body.ToString();
+                var content = Encoding.UTF8.GetString(ea.Body.ToArray());
 
                 JsonSerializerOptions options = new JsonSerializerOptions();
                 options.ReferenceHandler = ReferenceHandler.Preserve;
@@ -88,7 +94,7 @@ namespace Mango.Services.OrderAPI.Messaging
 
             try
             {
-                //TODO
+                _rabbitMQOrderMessageSender.SendMessage(paymentRequestMessage, _config["RabbitMQ:OrderPaymentQueueName"]);
             }
             catch (Exception ex)
             {
