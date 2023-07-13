@@ -23,25 +23,49 @@ namespace Mango.Services.ShoppingCartAPI.RabbitMQSender
 
         public void SendMessage(BaseMessage message, string queueName)
         {
-            var factory = new ConnectionFactory
+            if (ConnectionExists())
             {
-                HostName = _hostname,
-                UserName = _username,
-                Password = _password
-            };
+                using var channel = _connection.CreateModel();
+                channel.QueueDeclare(queueName, false, false, false, arguments: null);
 
-            _connection = factory.CreateConnection();
+                JsonSerializerOptions options = new JsonSerializerOptions();
+                options.ReferenceHandler = ReferenceHandler.Preserve;
 
-            using var channel = _connection.CreateModel();
-            channel.QueueDeclare(queueName, false, false, false, arguments: null);
+                var jsonMessage = JsonSerializer.Serialize(message, message.GetType(), options);
+                var body = Encoding.UTF8.GetBytes(jsonMessage);
 
-            JsonSerializerOptions options = new JsonSerializerOptions();
-            options.ReferenceHandler = ReferenceHandler.Preserve;
+                channel.BasicPublish(exchange: "", routingKey: queueName, basicProperties: null, body: body);
+            }            
+        }
 
-            var jsonMessage = JsonSerializer.Serialize(message, message.GetType(), options);
-            var body = Encoding.UTF8.GetBytes(jsonMessage);
+        private void CreateConnection()
+        {
+            try
+            {
+                var factory = new ConnectionFactory
+                {
+                    HostName = _hostname,
+                    UserName = _username,
+                    Password = _password
+                };
 
-            channel.BasicPublish(exchange: "", routingKey: queueName, basicProperties: null, body: body);
+                _connection = factory.CreateConnection();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                throw;
+            }
+        }
+
+        private bool ConnectionExists()
+        {
+            if ( _connection != null )
+            {
+                return true;
+            }
+            CreateConnection();
+            return _connection != null;
         }
     }
 }
