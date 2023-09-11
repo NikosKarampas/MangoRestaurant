@@ -29,6 +29,8 @@ optionBuilder.UseSqlServer(config.GetConnectionString("DefaultConnection"));
 
 builder.Services.AddSingleton(new OrderRepository(optionBuilder.Options));
 
+builder.Services.AddHostedService<RabbitMQPaymentConsumer>();
+
 builder.Services.AddHostedService<RabbitMQCheckoutConsumer>();
 
 builder.Services.AddSingleton<IRabbitMQOrderMessageSender>(_ =>
@@ -117,6 +119,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseAzureServiceBusConsumer();
+//app.UseAzureServiceBusConsumer();
 
 app.Run();

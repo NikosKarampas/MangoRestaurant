@@ -44,6 +44,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseAzureServiceBusConsumer();
+//app.UseAzureServiceBusConsumer();
 
 app.Run();
