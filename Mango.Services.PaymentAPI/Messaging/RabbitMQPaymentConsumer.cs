@@ -80,6 +80,9 @@ namespace Mango.Services.PaymentAPI.Messaging
             try
             {
                 _rabbitMQUpdatePaymentMessageSender.SendMessage(updatePaymentResultMessage, _config["RabbitMQ:UpdatePaymentFanoutExchangeName"]);
+
+                //Or alternative use direct exchange
+                //_rabbitMQUpdatePaymentMessageSender.SendMessage(updatePaymentResultMessage, _config["RabbitMQ:DirectUpdatePaymentExchangeName"]);
             }
             catch (Exception ex)
             {

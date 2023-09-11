@@ -16,6 +16,8 @@ namespace Mango.Services.OrderAPI.Messaging
 
         private readonly string ExchangeName = string.Empty;
 
+        //private const string UpdatePaymentOrderQueueName = "updatepaymentorder";
+
         private readonly OrderRepository _orderRepository;
 
         string QueueName = string.Empty;
@@ -41,6 +43,11 @@ namespace Mango.Services.OrderAPI.Messaging
             _channel.ExchangeDeclare(ExchangeName, ExchangeType.Fanout);
             QueueName = _channel.QueueDeclare().QueueName;
             _channel.QueueBind(QueueName, ExchangeName, "");
+
+            //Or alternative use direct exchange
+            //_channel.ExchangeDeclare(ExchangeName, ExchangeType.Direct);
+            //_channel.QueueDeclare(UpdatePaymentOrderQueueName, false, false, false, null);
+            //_channel.QueueBind(UpdatePaymentOrderQueueName, ExchangeName, "paymentorder");
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -60,6 +67,9 @@ namespace Mango.Services.OrderAPI.Messaging
             };
 
             _channel.BasicConsume(QueueName, false, consumer);
+
+            //Or alternative use direct exchange
+            //_channel.BasicConsume(UpdatePaymentOrderQueueName, false, consumer);
 
             return Task.CompletedTask;
         }

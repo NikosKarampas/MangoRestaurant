@@ -12,7 +12,10 @@ namespace Mango.Services.PaymentAPI.RabbitMQSender
         private readonly string _username;
         private readonly string _password;
         
-        private IConnection _connection;        
+        private IConnection _connection;
+
+        //private const string UpdatePaymentEmailQueueName = "updatepaymentemail";
+        //private const string UpdatePaymentOrderQueueName = "updatepaymentorder";
 
         public RabbitMQUpdatePaymentMessageSender(string hostname, string username, string password)
         {
@@ -37,6 +40,17 @@ namespace Mango.Services.PaymentAPI.RabbitMQSender
                 var body = Encoding.UTF8.GetBytes(jsonMessage);
 
                 channel.BasicPublish(exchange: fanoutExchangeName, string.Empty, basicProperties: null, body: body);
+
+                //Or alternative use direct exchange
+                //channel.ExchangeDeclare(ExchangeName, ExchangeType.Direct, durable: false);
+                //channel.QueueDeclare(UpdatePaymentEmailQueueName, false, false, false, null);
+                //channel.QueueDeclare(UpdatePaymentOrderQueueName, false, false, false, null);
+
+                //channel.QueueBind(UpdatePaymentEmailQueueName, ExchangeName, "paymentemail");
+                //channel.QueueBind(UpdatePaymentOrderQueueName, ExchangeName, "paymentorder");
+
+                //channel.BasicPublish(exchange: ExchangeName, "paymentemail", basicProperties: null, body: body);
+                //channel.BasicPublish(exchange: ExchangeName, "paymentorder", basicProperties: null, body: body);
             }            
         }
 

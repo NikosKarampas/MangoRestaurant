@@ -16,6 +16,8 @@ namespace Mango.Services.Email.Messaging
 
         private readonly string ExchangeName = string.Empty;
 
+        //private const string UpdatePaymentEmailQueueName = "updatepaymentemail";
+
         private readonly EmailRepository _emailRepository;
 
         string QueueName = string.Empty;
@@ -41,6 +43,11 @@ namespace Mango.Services.Email.Messaging
             _channel.ExchangeDeclare(ExchangeName, ExchangeType.Fanout);
             QueueName = _channel.QueueDeclare().QueueName;
             _channel.QueueBind(QueueName, ExchangeName, "");
+
+            //Or alternative use direct exchange
+            //_channel.ExchangeDeclare(ExchangeName, ExchangeType.Direct);
+            //_channel.QueueDeclare(UpdatePaymentEmailQueueName, false, false, false, null);
+            //_channel.QueueBind(UpdatePaymentEmailQueueName, ExchangeName, "paymentemail");
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -60,6 +67,9 @@ namespace Mango.Services.Email.Messaging
             };
 
             _channel.BasicConsume(QueueName, false, consumer);
+
+            //Or alternative use direct exchange
+            //_channel.BasicConsume(UpdatePaymentEmailQueueName, false, consumer);
 
             return Task.CompletedTask;
         }
